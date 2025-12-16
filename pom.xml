@@ -42,15 +42,33 @@
                 <version>3.5.0</version>
                 <executions>
                     <execution>
+                        <id>build-server</id>
                         <phase>package</phase>
-                        <goals><goal>shade</goal></goals>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.example.gogame.Main</mainClass>
-                                </transformer>
-                            </transformers>
+                            <finalName>go-server</finalName> <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>org.example.gogame.server.GoServer</mainClass> </transformer>
+                        </transformers>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>server</shadedClassifierName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-client</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>go-client</finalName> <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>org.example.gogame.client.GoClient</mainClass> </transformer>
+                        </transformers>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>client</shadedClassifierName>
                         </configuration>
                     </execution>
                 </executions>
