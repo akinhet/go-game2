@@ -82,10 +82,10 @@ package "Server" {
 
     class GameLogic {
         + validateMove(Board board, int x, int y, StoneColor color) : boolean
-        + checkCaptures(Board board, int x, int y, StoneColor color) : List<Point>
-        - countLiberties(Board board, int x, int y, boolean[][] visited) : int
-        - getGroup(Board board, int x, int y) : List<Point>
-        - isSuicide(Board board, int x, int y, StoneColor color) : boolean
+        + checkCaptures(Board board, int x, int y, StoneColor color) : ArrayList<Point>
+        + finalCheck(Board board, int x, int y, StoneColor color) : StoneColor
+        - countLiberties(Board board, int x, int y) : int
+        - inBounds(Board board, int x, int y) : boolean
     }
 }
 
