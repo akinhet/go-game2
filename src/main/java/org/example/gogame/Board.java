@@ -6,6 +6,7 @@ public class Board {
 
     public Board(int size){
         this.size = size;
+        this.grid = new StoneColor[size][size];
         for (int i = 0; i<size; i +=1){
             for (int j = 0; j<size; j+=1){
                 grid[i][j] = StoneColor.EMPTY;

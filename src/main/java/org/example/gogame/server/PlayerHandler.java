@@ -60,11 +60,13 @@ public class PlayerHandler implements Runnable {
 
                 game.processMove(x, y, this);
             }
-        } else if (command.equals("PASS")) {
-            //TODO: add turn passing
+        }  else if (command.equals("PASS")) {
+            game.processPass(this);
         } else if (command.equals("QUIT")) {
-            //TODO: game.handleQuit(this);
-        }
+            game.processQuit(this);
+        } else {
+            sendMessage("ERROR Unknown command");
+    }
     }
 
     public void sendMessage(String message) {

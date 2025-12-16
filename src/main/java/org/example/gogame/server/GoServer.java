@@ -41,7 +41,7 @@ public class GoServer {
                 player2.sendMessage("MESSAGE Connected as WHITE. Game starting...");
 
                 System.out.println("Both players connected. Starting game.");
-                Game game = new Game(player1, player2, 0);
+                Game game = new Game(player1, player2, 19);
 
                 player1.setGame(game);
 

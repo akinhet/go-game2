@@ -59,10 +59,14 @@ package "Server" {
         - PlayerHandler currentPlayer
         - Board board
         - GameLogic gameLogic
-        + Game(PlayerHandler p1, PlayerHandler p2)
+        + Game(PlayerHandler p1, PlayerHandler p2, int size)
         + processMove(int x, int y, PlayerHandler player) : synchronized void
+        + processPass(PlayerHandler player) : synchronized void
+        + processQuit(PlayerHandler player) : synchronized void
         - switchTurn() : void
         - broadcastMessage(String message) : void
+        - endGame() : void
+        - calculateScore(StoneColor color) : int
     }
 
     class PlayerHandler implements Runnable {

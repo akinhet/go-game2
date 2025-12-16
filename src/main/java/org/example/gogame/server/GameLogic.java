@@ -1,4 +1,7 @@
-package org.example.gogame;
+package org.example.gogame.server;
+
+import org.example.gogame.Board;
+import org.example.gogame.StoneColor;
 
 import java.util.ArrayList;
 
@@ -20,7 +23,7 @@ public class GameLogic {
         }
         return liberties;
     }
-    public boolean validateMove(Board board, int x, int y, StoneColor color){
+    public boolean validateMove(Board board, int x, int y){
         return inBounds(board,x,y) && board.getStone(x,y) == StoneColor.EMPTY;
     }
     public ArrayList<int[]> checkCaptures(Board board, int x, int y, StoneColor color){
