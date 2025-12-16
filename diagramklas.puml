@@ -28,7 +28,7 @@ package "Shared (Wspólne)" {
         + getColor() : StoneColor
     }
 
-        class Board {
+    class Board {
         - int size
         - StoneColor[][] grid
         + Board(int size)
@@ -46,11 +46,9 @@ package "Shared (Wspólne)" {
 package "Server" {
 
     class GoServer {
-        - int port
-        - ServerSocket serverSocket
+        - static int port = 1111
         + main(String[] args)
         + start() : void
-        - waitForPlayers() : void
     }
 
     class Game {
@@ -59,6 +57,8 @@ package "Server" {
         - PlayerHandler currentPlayer
         - Board board
         - GameLogic gameLogic
+        - boolean gameOver = false
+        - int consecutivePasses = 0
         + Game(PlayerHandler p1, PlayerHandler p2, int size)
         + processMove(int x, int y, PlayerHandler player) : synchronized void
         + processPass(PlayerHandler player) : synchronized void
@@ -74,19 +74,21 @@ package "Server" {
         - PrintWriter output
         - BufferedReader input
         - Game game
-        - StoneColor myColor
+        - StoneColor color
         + PlayerHandler(Socket socket, StoneColor color)
         + run() : void
         + sendMessage(String msg) : void
         + setGame(Game game) : void
+        + setColor(StoneColor color) : void
         + getColor() : StoneColor
+        - setupStreams() : void
+        - handleCommand(String command) : void
+        - closeConnection() : void
     }
 
-
-
     class GameLogic {
-        + validateMove(Board board, int x, int y, StoneColor color) : boolean
-        + checkCaptures(Board board, int x, int y, StoneColor color) : ArrayList<Point>
+        + validateMove(Board board, int x, int y) : boolean
+        + checkCaptures(Board board, int x, int y, StoneColor color) : ArrayList<int[]>
         + finalCheck(Board board, int x, int y, StoneColor color) : StoneColor
         - countLiberties(Board board, int x, int y) : int
         - inBounds(Board board, int x, int y) : boolean
@@ -99,27 +101,46 @@ package "Server" {
 package "Client" {
 
     class GoClient {
-        - Socket socket
-        - PrintWriter output
-        - ConsoleView view
         + main(String[] args)
-        + connect(String host, int port) : void
-        + sendMove(int x, int y) : void
+    }
+
+    class ClientGameController {
+        - Socket socket
+        - PrintWriter out
+        - ConsoleView view
+        - StoneColor myColor = StoneColor.EMPTY
+        - boolean isGameRunning = true
+        - boolean myTurn = false
+        + ClientGameController(Socket socket, ConsoleView view) throws Exception
+        + play() : void
+        + handleServerMessage(String message) : synchronized void
+        + handleConnectionError() : void
+        - handleUserInput(String input) : void
+        - closeConnection() : void
     }
 
     class ServerListener implements Runnable {
-        - BufferedReader input
-        - ConsoleView view
-        + ServerListener(InputStream in, ConsoleView view)
+        - BufferedReader in
+        - ClientGameController controller
+        + ServerListener(InputStream inputStream, ClientGameController controller)
         + run() : void
     }
 
     class ConsoleView {
+        - Scanner scanner
         - Board board
+        - String color
+        - String msg = ""
+        - String err = ""
+        - boolean myTurn = false
+        + ConsoleView(int size)
         + updateBoard(int x, int y, StoneColor color) : void
-        + displayMessage(String msg) : void
+        + displayBoard() : void
+        + setMessage(String msg) : void
         + getUserInput() : String
-        + parseInputToMove(String input) : Move
+        + setColor(String color) : void
+        + setTurn(boolean turn) : void
+        + setErr(String err) : void
     }
 }
 
@@ -132,21 +153,39 @@ GoServer ..> Game : <<creates>>
 GoServer ..> PlayerHandler : <<creates>>
 
 Game "1" *-- "1" Board : zawiera (Composition)
+Game "1" *-- "1" GameLogic : zawiera (Composition)
 Game "1" o-- "2" PlayerHandler : zarządza (Aggregation)
-Game ..> GameLogic : używa (Dependency)
 
-GameLogic ..> Board : czyta stan
-PlayerHandler ..> Move : deserializuje
+GameLogic ..> Board : używa (Dependency)
+GameLogic ..> StoneColor : używa
+
+PlayerHandler ..> StoneColor : używa
+PlayerHandler --> Game : współpracuje
 
 ' Powiązania w kliencie
-GoClient "1" *-- "1" ConsoleView : używa
-GoClient "1" *-- "1" ServerListener : uruchamia
-ServerListener ..> ConsoleView : aktualizuje widok
-ConsoleView *-- Board
+GoClient ..> Socket : <<creates>>
+GoClient ..> ConsoleView : <<creates>>
+GoClient ..> ClientGameController : <<creates>>
+
+ClientGameController "1" *-- "1" ConsoleView : używa
+ClientGameController "1" *-- "1" ServerListener : zarządza
+
+ServerListener --> ClientGameController : powiadamia
+
+ConsoleView "1" *-- "1" Board : wyświetla
+ConsoleView ..> Scanner : używa
 
 ' Powiązania między pakietami
-PlayerHandler ..> StoneColor
-Board *-- StoneColor
-Move *-- StoneColor
+Board *-- StoneColor : zawiera
+Move *-- StoneColor : zawiera
+
+' Dodatkowe relacje (z mojego diagramu)
+Game --> StoneColor : używa
+ClientGameController ..> StoneColor : używa
+ConsoleView ..> StoneColor : używa
+
+' Relacje komunikacyjne między klientem a serwerem
+ClientGameController ..> Socket : komunikacja
+PlayerHandler ..> Socket : komunikacja
 
 @enduml
