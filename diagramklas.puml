@@ -18,16 +18,6 @@ package "Shared (Wspólne)" {
         EMPTY
     }
 
-    class Move {
-        - int x
-        - int y
-        - StoneColor color
-        + Move(int x, int y, StoneColor color)
-        + getX() : int
-        + getY() : int
-        + getColor() : StoneColor
-    }
-
     class Board {
         - int size
         - StoneColor[][] grid
@@ -177,7 +167,6 @@ ConsoleView ..> Scanner : używa
 
 ' Powiązania między pakietami
 Board *-- StoneColor : zawiera
-Move *-- StoneColor : zawiera
 
 ' Dodatkowe relacje (z mojego diagramu)
 Game --> StoneColor : używa
