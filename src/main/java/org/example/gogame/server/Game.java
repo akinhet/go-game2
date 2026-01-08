@@ -48,31 +48,42 @@ public class Game {
         if (currentPlayer == player) {
             if (gameLogic.validateMove(board, x, y)) {
                 board.setStone(x, y, player.getColor());
+
                 captures = gameLogic.checkCaptures(board, x, y, player.getColor());
                 for (int[] capture : captures) {
                     board.removeStone(capture[0], capture[1]);
                 }
+
                 finalform = gameLogic.finalCheck(board, x, y, player.getColor());
-                board.setStone(x, y, finalform);
-                StringBuilder moveMessage = new StringBuilder();
-                moveMessage.append("MOVE ")
-                        .append(x).append(" ")
-                        .append(y).append(" ")
-                        .append(player.getColor().name());
-
-                BroadcastMessage(moveMessage.toString());
-
-                moveMessage = new StringBuilder();
-                moveMessage.append("CAPTURES");
-                if (!captures.isEmpty()) {
-                    for (int[] point : captures) {
-                        moveMessage.append(" ").append(point[0])
-                                .append(" ").append(point[1]);
+                if (finalform == StoneColor.EMPTY){
+                    board.removeStone(x,y);
+                    StoneColor enemy = (player.getColor() == StoneColor.BLACK ? StoneColor.WHITE : StoneColor.BLACK);
+                    for (int[] capture : captures) {
+                        board.setStone(capture[0], capture[1], enemy);
                     }
+                    player.sendMessage("ERROR Suicide move - put valid move");
+                } else {
+                    board.setStone(x, y, finalform);
+                    StringBuilder moveMessage = new StringBuilder();
+                    moveMessage.append("MOVE ")
+                            .append(x).append(" ")
+                            .append(y).append(" ")
+                            .append(player.getColor().name());
+
+                    BroadcastMessage(moveMessage.toString());
+
+                    moveMessage = new StringBuilder();
+                    moveMessage.append("CAPTURES");
+                    if (!captures.isEmpty()) {
+                        for (int[] point : captures) {
+                            moveMessage.append(" ").append(point[0])
+                                    .append(" ").append(point[1]);
+                        }
+                    }
+                    BroadcastMessage(moveMessage.toString());
+                    switchTurn();
+                    BroadcastMessage("TURN " + currentPlayer.getColor().name());
                 }
-                BroadcastMessage(moveMessage.toString());
-                switchTurn();
-                BroadcastMessage("TURN " + currentPlayer.getColor().name());
             } else {
                 player.sendMessage("ERROR Invalid move - put valid move");
             }
