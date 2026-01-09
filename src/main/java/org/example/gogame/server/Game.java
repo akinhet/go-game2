@@ -13,6 +13,7 @@ public class Game {
     private GameLogic gameLogic;
     private boolean gameOver = false;
     private int consecutivePasses = 0;
+    private int[] lastMove = {-2,0};
     public Game(PlayerHandler p1, PlayerHandler p2, int size) {
         this.blackPlayer = p1;
         this.whitePlayer = p2;
@@ -47,42 +48,51 @@ public class Game {
         StoneColor finalform;
         if (currentPlayer == player) {
             if (gameLogic.validateMove(board, x, y)) {
-                board.setStone(x, y, player.getColor());
+                if (!gameLogic.isKo(board,lastMove,x,y)){
+                    board.setStone(x, y, player.getColor());
 
-                captures = gameLogic.checkCaptures(board, x, y, player.getColor());
-                for (int[] capture : captures) {
-                    board.removeStone(capture[0], capture[1]);
-                }
-
-                finalform = gameLogic.finalCheck(board, x, y, player.getColor());
-                if (finalform == StoneColor.EMPTY){
-                    board.removeStone(x,y);
-                    StoneColor enemy = (player.getColor() == StoneColor.BLACK ? StoneColor.WHITE : StoneColor.BLACK);
+                    captures = gameLogic.checkCaptures(board, x, y, player.getColor());
+                    if (captures.size()==1){
+                        lastMove = new int[]{captures.get(0)[0],captures.get(0)[1]};
+                    } else {
+                        lastMove = new int[]{-2,0};
+                    }
                     for (int[] capture : captures) {
-                        board.setStone(capture[0], capture[1], enemy);
+                        board.removeStone(capture[0], capture[1]);
                     }
-                    player.sendMessage("ERROR Suicide move - put valid move");
-                } else {
-                    board.setStone(x, y, finalform);
-                    StringBuilder moveMessage = new StringBuilder();
-                    moveMessage.append("MOVE ")
-                            .append(x).append(" ")
-                            .append(y).append(" ")
-                            .append(player.getColor().name());
 
-                    BroadcastMessage(moveMessage.toString());
-
-                    moveMessage = new StringBuilder();
-                    moveMessage.append("CAPTURES");
-                    if (!captures.isEmpty()) {
-                        for (int[] point : captures) {
-                            moveMessage.append(" ").append(point[0])
-                                    .append(" ").append(point[1]);
+                    finalform = gameLogic.finalCheck(board, x, y, player.getColor());
+                    if (finalform == StoneColor.EMPTY){
+                        board.removeStone(x,y);
+                        StoneColor enemy = (player.getColor() == StoneColor.BLACK ? StoneColor.WHITE : StoneColor.BLACK);
+                        for (int[] capture : captures) {
+                            board.setStone(capture[0], capture[1], enemy);
                         }
+                        player.sendMessage("ERROR Suicide move - put valid move");
+                    } else {
+                        board.setStone(x, y, finalform);
+                        StringBuilder moveMessage = new StringBuilder();
+                        moveMessage.append("MOVE ")
+                                .append(x).append(" ")
+                                .append(y).append(" ")
+                                .append(player.getColor().name());
+
+                        BroadcastMessage(moveMessage.toString());
+
+                        moveMessage = new StringBuilder();
+                        moveMessage.append("CAPTURES");
+                        if (!captures.isEmpty()) {
+                            for (int[] point : captures) {
+                                moveMessage.append(" ").append(point[0])
+                                        .append(" ").append(point[1]);
+                            }
+                        }
+                        BroadcastMessage(moveMessage.toString());
+                        switchTurn();
+                        BroadcastMessage("TURN " + currentPlayer.getColor().name());
                     }
-                    BroadcastMessage(moveMessage.toString());
-                    switchTurn();
-                    BroadcastMessage("TURN " + currentPlayer.getColor().name());
+                } else {
+                    player.sendMessage("ERROR This move leads to Ko - put valid move");
                 }
             } else {
                 player.sendMessage("ERROR Invalid move - put valid move");

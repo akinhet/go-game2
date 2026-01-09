@@ -120,4 +120,11 @@ public class GameLogic {
         }
         return color;
     }
+    public boolean isKo(Board board, int[] lastMove, int x, int y){
+        if (lastMove[0] == x && lastMove[1] == y){
+            return true;
+        }
+        return false;
+
+    }
 }
