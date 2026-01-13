@@ -125,9 +125,6 @@ public class Game {
         BroadcastMessage("GAME_OVER " +
                 (player.getColor() == StoneColor.BLACK ? "WHITE" : "BLACK") +
                 "_WINS");
-
-        if (blackPlayer != null) blackPlayer.sendMessage("GAME_OVER");
-        if (whitePlayer != null) whitePlayer.sendMessage("GAME_OVER");
     }
 
     private void switchTurn(){

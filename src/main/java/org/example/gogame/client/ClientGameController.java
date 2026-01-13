@@ -86,7 +86,9 @@ public class ClientGameController {
         }
         else if (message.startsWith("GAME_OVER")) {
             isGameRunning = false;
-            view.setMessage("!!! GAME OVER !!!");
+            view.setMessage("!!! GAME OVER !!!\n" +
+                    message.substring(9));
+            view.displayBoard();
         }
         else if (message.startsWith("ERROR")) {
             view.setErr(message);
