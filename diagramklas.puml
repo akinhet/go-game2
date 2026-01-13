@@ -1,11 +1,11 @@
 @startuml
 
-' Ustawienia stylistyczne dla lepszej czytelności
+' Ustawienia stylistyczne dla czytelności
 skinparam classAttributeIconSize 0
 skinparam linetype ortho
 skinparam packageStyle rectangle
 
-title Diagram Klas Systemu Gry w Go - Iteracja 1
+title Diagram Klas Systemu Gry w Go
 
 ' ---------------------------------------------------------
 ' PAKIET SHARED (Współdzielone)
@@ -47,16 +47,20 @@ package "Server" {
         - PlayerHandler currentPlayer
         - Board board
         - GameLogic gameLogic
-        - boolean gameOver = false
-        - int consecutivePasses = 0
+        - boolean gameOver
+        - boolean isUnderNegotiation
+        - boolean[] playerAgreed
+        - int blackPrisoners
+        - int whitePrisoners
         + Game(PlayerHandler p1, PlayerHandler p2, int size)
         + processMove(int x, int y, PlayerHandler player) : synchronized void
         + processPass(PlayerHandler player) : synchronized void
         + processQuit(PlayerHandler player) : synchronized void
+        + processResume(PlayerHandler player) : synchronized void
+        + processAgree(PlayerHandler player) : synchronized void
         - switchTurn() : void
-        - broadcastMessage(String message) : void
+        - BroadcastMessage(String message) : void
         - endGame() : void
-        - calculateScore(StoneColor color) : int
     }
 
     class PlayerHandler implements Runnable {
@@ -77,11 +81,16 @@ package "Server" {
     }
 
     class GameLogic {
+        - int regionSize
         + validateMove(Board board, int x, int y) : boolean
+        + countChainLiberties(Board board, int startX, int startY, StoneColor color) : int
         + checkCaptures(Board board, int x, int y, StoneColor color) : ArrayList<int[]>
         + finalCheck(Board board, int x, int y, StoneColor color) : StoneColor
-        - countLiberties(Board board, int x, int y) : int
+        + isKo(Board board, int[] lastMove, int x, int y) : boolean
+        + countTerritory(Board board) : int[]
         - inBounds(Board board, int x, int y) : boolean
+        - getChain(Board board, int startX, int startY, StoneColor color) : ArrayList<int[]>
+        - checkRegionOwner(Board board, int x, int y, boolean[][] visited) : StoneColor
     }
 }
 
@@ -90,22 +99,27 @@ package "Server" {
 ' ---------------------------------------------------------
 package "Client" {
 
+    class "Application" as JavaFXApp {
+        ' Klasa bazowa JavaFX
+    }
+
     class GoClient {
         + main(String[] args)
+        + start(Stage primaryStage) : void
+        - askForServerAddress() : String
+        - showError(String header, String content) : void
     }
 
     class ClientGameController {
         - Socket socket
         - PrintWriter out
-        - ConsoleView view
-        - StoneColor myColor = StoneColor.EMPTY
-        - boolean isGameRunning = true
-        - boolean myTurn = false
-        + ClientGameController(Socket socket, ConsoleView view) throws Exception
-        + play() : void
-        + handleServerMessage(String message) : synchronized void
+        - GuiView view
+        - StoneColor myColor
+        - boolean isGameRunning
+        + ClientGameController(Socket socket, GuiView view) throws Exception
+        + startListener() : void
+        + handleServerMessage(String message) : void
         + handleConnectionError() : void
-        - handleUserInput(String input) : void
         - closeConnection() : void
     }
 
@@ -116,21 +130,31 @@ package "Client" {
         + run() : void
     }
 
+    class GuiView {
+        - int size
+        - BorderPane root
+        - Pane boardPane
+        - Label statusLabel
+        - Label colorLabel
+        - ClientGameController controller
+        - Circle[][] stones
+        + GuiView(int size)
+        + setController(ClientGameController controller) : void
+        + getRoot() : Parent
+        + updateBoard(int x, int y, StoneColor color) : void
+        + setMessage(String msg) : void
+        + setColor(String color) : void
+        + setTurn(boolean myTurn) : void
+        + setErr(String err) : void
+    }
+
     class ConsoleView {
+        ' Klasa obecna w plikach, ale nieużywana w wersji GUI
         - Scanner scanner
         - Board board
-        - String color
-        - String msg = ""
-        - String err = ""
-        - boolean myTurn = false
         + ConsoleView(int size)
-        + updateBoard(int x, int y, StoneColor color) : void
         + displayBoard() : void
-        + setMessage(String msg) : void
         + getUserInput() : String
-        + setColor(String color) : void
-        + setTurn(boolean turn) : void
-        + setErr(String err) : void
     }
 }
 
@@ -138,43 +162,34 @@ package "Client" {
 ' RELACJE
 ' ---------------------------------------------------------
 
-' Powiązania w serwerze
+' Serwer
 GoServer ..> Game : <<creates>>
 GoServer ..> PlayerHandler : <<creates>>
 
-Game "1" *-- "1" Board : zawiera (Composition)
-Game "1" *-- "1" GameLogic : zawiera (Composition)
-Game "1" o-- "2" PlayerHandler : zarządza (Aggregation)
+Game "1" *-- "1" Board : zawiera
+Game "1" *-- "1" GameLogic : używa
+Game "1" o-- "2" PlayerHandler : ma graczy
 
-GameLogic ..> Board : używa (Dependency)
+GameLogic ..> Board : analizuje
 GameLogic ..> StoneColor : używa
+PlayerHandler --> Game : deleguje komendy
 
-PlayerHandler ..> StoneColor : używa
-PlayerHandler --> Game : współpracuje
-
-' Powiązania w kliencie
-GoClient ..> Socket : <<creates>>
-GoClient ..> ConsoleView : <<creates>>
+' Klient
+GoClient --|> JavaFXApp : extends
+GoClient ..> GuiView : <<creates>>
 GoClient ..> ClientGameController : <<creates>>
+GoClient ..> Socket : <<creates>>
 
-ClientGameController "1" *-- "1" ConsoleView : używa
-ClientGameController "1" *-- "1" ServerListener : zarządza
+ClientGameController "1" o-- "1" GuiView : steruje
+ClientGameController "1" *-- "1" ServerListener : posiada
 
-ServerListener --> ClientGameController : powiadamia
+GuiView --> ClientGameController : wysyła input użytkownika
+ServerListener --> ClientGameController : przekazuje komunikaty
 
-ConsoleView "1" *-- "1" Board : wyświetla
-ConsoleView ..> Scanner : używa
-
-' Powiązania między pakietami
-Board *-- StoneColor : zawiera
-
-' Dodatkowe relacje (z mojego diagramu)
-Game --> StoneColor : używa
-ClientGameController ..> StoneColor : używa
-ConsoleView ..> StoneColor : używa
-
-' Relacje komunikacyjne między klientem a serwerem
-ClientGameController ..> Socket : komunikacja
-PlayerHandler ..> Socket : komunikacja
+' Wspólne
+Board *-- StoneColor
+Game ..> StoneColor
+GuiView ..> StoneColor
+ClientGameController ..> StoneColor
 
 @enduml
