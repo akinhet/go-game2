@@ -10,7 +10,7 @@ import java.net.Socket;
  * Main entry point for the Go Game Server.
  * Listens for client connections and starts a new Game instance when two players connect.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class GoServer {
 

@@ -22,7 +22,7 @@ import java.util.Optional;
  * Represents the Graphical User Interface (GUI) for the Go game.
  * Handles the display of the board, stones, and status messages using JavaFX.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class GuiView {
     private final int size;

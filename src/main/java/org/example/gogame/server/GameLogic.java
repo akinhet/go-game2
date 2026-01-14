@@ -11,7 +11,7 @@ import java.util.Set;
  * Contains the rules and mechanics of the game of Go.
  * Handles validation, liberty counting, capture logic, and Ko rule detection.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class GameLogic {
     private int regionSize = 0;

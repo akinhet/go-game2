@@ -4,7 +4,7 @@ package org.example.gogame;
  * Represents the Go game board.
  * Manages the grid of stones and provides methods to access and modify the board state.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class Board {
     private int size;

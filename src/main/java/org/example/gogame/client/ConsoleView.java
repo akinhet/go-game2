@@ -8,7 +8,7 @@ import java.util.Scanner;
  * A console-based implementation of the Game View.
  * Displays the board using text characters and reads input from standard in.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class ConsoleView {
     private Scanner scanner;

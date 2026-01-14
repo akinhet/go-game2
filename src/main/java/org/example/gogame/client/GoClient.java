@@ -13,7 +13,8 @@ import java.util.Optional;
  * Initializes the JavaFX UI, establishes the connection to the server,
  * and sets up the Model-View-Controller components.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
+ *
  */
 public class GoClient extends Application {
 

@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
  * Listens for incoming messages from the server on a separate thread.
  * Forwards received messages to the ClientGameController.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class ServerListener implements Runnable {
     private BufferedReader in;

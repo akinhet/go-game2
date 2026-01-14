@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Manages the state and flow of a single Go game session.
  * Handles turns, move processing, scoring, and communication between two players.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class Game {
     private PlayerHandler blackPlayer;

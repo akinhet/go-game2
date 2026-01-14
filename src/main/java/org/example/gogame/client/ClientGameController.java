@@ -10,7 +10,7 @@ import java.net.Socket;
  * Controls the client-side game flow.
  * Bridges communication between the network (ServerListener) and the UI (GuiView).
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class ClientGameController {
     private Socket socket;

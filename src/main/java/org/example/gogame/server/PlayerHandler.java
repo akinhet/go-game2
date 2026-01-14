@@ -11,7 +11,7 @@ import java.net.Socket;
  * Handles the network communication for a single player on the server side.
  * Runs in a separate thread to listen for incoming commands.
  *
- * @author toBeSpecified
+ * @author Piotr Zieniewicz, Jan Langier
  */
 public class PlayerHandler implements Runnable {
 
