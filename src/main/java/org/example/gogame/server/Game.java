@@ -24,6 +24,9 @@ public class Game {
     private int[] lastMove = {-2,0};
     private int blackPrisoners = 0;
     private int whitePrisoners = 0;
+    private ArrayList<String> removed = new ArrayList<>();
+    private int removedWhite = 0;
+    private int removedBlack = 0;
 
     /**
      * Initializes a new game with two players and a board size.
@@ -73,9 +76,14 @@ public class Game {
         if (isUnderNegotiation) {
             if (board.getStone(x,y)==StoneColor.BLACK){
                 whitePrisoners++;
+                removedBlack++;
             }else if (board.getStone(x,y) == StoneColor.WHITE){
                 blackPrisoners++;
+                removedWhite++;
             }else {return;}
+            StringBuilder remove = new StringBuilder();
+            remove.append("MOVE ").append(x).append(" ").append(y).append(" ").append(board.getStone(x,y).name());
+            removed.add(remove.toString());
             board.setStone(x,y,StoneColor.EMPTY);
             StringBuilder moveMessage = new StringBuilder();
             moveMessage.append("MOVE ")
@@ -189,6 +197,7 @@ public class Game {
      * Players are prompted to either AGREE to the score or RESUME play.
      */
     private void startNegotiationPhase() {
+        removed.clear();
         isUnderNegotiation = true;
         playerAgreed[0] = false; // Black
         playerAgreed[1] = false; // White
@@ -225,6 +234,16 @@ public class Game {
         consecutivePasses = 0;
         playerAgreed[0] = false;
         playerAgreed[1] = false;
+        blackPrisoners -= removedWhite;
+        whitePrisoners -= removedBlack;
+        for (String move : removed) {
+            BroadcastMessage(move);
+            String[] parts = move.split(" ");
+            int x = Integer.parseInt(parts[1]);
+            int y = Integer.parseInt(parts[2]);
+            String color = parts[3];
+            board.setStone(x,y,StoneColor.valueOf(color));
+        }
 
         BroadcastMessage("MESSAGE Game Resumed by " + player.getColor());
 
